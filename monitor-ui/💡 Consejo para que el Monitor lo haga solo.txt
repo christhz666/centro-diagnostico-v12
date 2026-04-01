@@ -1,0 +1,7 @@
+💡 Consejo para que el Monitor lo haga solo
+Si quieres que el Monitor cree la tabla bonita y clasificada automáticamente
+
+En la pantalla de la ABX Micros 60, abre el menú de configuración.
+Busca la sección Salida  Output  RS232.
+Cámbialo de Ticket o Printer a Standard o ASTM.
+Al cambiarlo a ASTM, la máquina enviará el mensaje con etiquetas identificables y el Monitor lo tabulará de inmediato.

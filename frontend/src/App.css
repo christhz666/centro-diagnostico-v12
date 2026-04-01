@@ -1,0 +1,1241 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* MediCore Premium - Electric Core Palette */
+  --color-dark: #020617;
+  /* Deepest Navy */
+  --color-electric: #2563eb;
+  /* Primary Electric Blue */
+  --color-cyber: #06b6d4;
+  /* Cyber Cyan Accent */
+
+  --color-primary: var(--color-electric);
+  --color-primary-glow: rgba(37, 99, 235, 0.12);
+  --color-accent: var(--color-cyber);
+  --color-accent-glow: rgba(6, 182, 212, 0.1);
+
+  --color-sky: #38bdf8;
+  --color-bg: #f0f2f5;
+  --color-card: #ffffff;
+  --color-white: #ffffff;
+  --color-danger: #f43f5e;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+
+  --sidebar-w: 260px;
+  --sidebar-sm: 80px;
+  --header-h: 70px;
+  --radius: 16px;
+  --radius-lg: 24px;
+
+  /* Premium Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(37, 99, 235, 0.1);
+  --glass-blur: blur(16px);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-body: 'Inter', sans-serif;
+  --font-title: 'Outfit', sans-serif;
+}
+
+/* ── Reset & base ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-dark);
+  /* Dark text on light BG */
+}
+
+/* ── Light Glass Panels ────────────────────────────────── */
+.glass-panel {
+  background: var(--color-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+/* Sidebar principal - MediCore Futuristic */
+.sidebar-v2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background: #ffffff !important;
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.02);
+}
+
+.sidebar-v2 .sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.sidebar-v2 .nav-link-v2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: var(--text-muted) !important;
+  text-decoration: none;
+  transition: all 0.2s;
+  position: relative;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.sidebar-v2 .nav-link-v2:hover {
+  background: var(--color-primary-glow);
+  color: var(--color-electric) !important;
+}
+
+.sidebar-v2 .nav-link-v2.active {
+  background: var(--color-primary-glow);
+  color: var(--color-electric) !important;
+  font-weight: 700;
+}
+
+.sidebar-v2 .nav-link-v2.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background: var(--color-electric);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+/* Header V2 - Glassmorphism Precision */
+.header-v2 {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  height: var(--header-h);
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+/* Área de contenido interior */
+.content-area {
+  padding: 24px;
+  max-width: 1600px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   COMPONENTES COMUNES
+   ══════════════════════════════════════════════════════════ */
+
+/* Tablas responsivas — envolver siempre en .table-responsive */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Hint de scroll en mobile */
+.table-responsive::after {
+  content: attr(data-scroll-hint);
+  display: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 550px;
+  background: var(--color-white);
+}
+
+th,
+td {
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+th {
+  background: #f8f9fa;
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tbody tr:hover {
+  background: rgba(135, 206, 235, 0.05);
+}
+
+/* Cards / panels */
+.panel {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+/* Grids responsivos */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Botones táctiles (mínimo 44x44 para dedos) */
+button,
+[role="button"] {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  min-height: 40px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 13px;
+  min-height: 34px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 16px;
+  min-height: 48px;
+}
+
+/* Inputs / formularios */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.form-control {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: var(--font);
+  transition: var(--transition);
+  background: white;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-sky);
+  box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.15);
+}
+
+/* Badges / etiquetas */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge-danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.badge-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge-primary {
+  background: #cce5ff;
+  color: #004085;
+}
+
+/* Modales */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.25s ease;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ANIMACIONES GLOBALES
+   ══════════════════════════════════════════════════════════ */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Tablet grande (≤1200px) ──────────────────────────────── */
+@media (max-width: 1200px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+}
+
+/* ── Tablet (≤1024px) ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .app-sidebar {
+    width: var(--sidebar-sm) !important;
+  }
+
+  .app-sidebar .sidebar-label {
+    display: none !important;
+  }
+
+  .app-main {
+    margin-left: var(--sidebar-sm) !important;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content-area {
+    padding: 18px;
+  }
+
+  /* Scroll hint en tablas */
+  .table-responsive::after {
+    content: '← Deslice para ver más →';
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+    padding: 4px 0;
+  }
+}
+
+/* ── Tablet pequeña / Móvil grande (≤768px) ──────────────── */
+@media (max-width: 768px) {
+
+  /* Sidebar deslizante */
+  .app-sidebar {
+    width: var(--sidebar-w) !important;
+    transform: translateX(-110%);
+    box-shadow: none;
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .app-sidebar.open~.sidebar-overlay,
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .app-sidebar.open .sidebar-label {
+    display: inline !important;
+  }
+
+  /* Main ocupa todo el ancho */
+  .app-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Header */
+  .app-header {
+    padding: 10px 14px !important;
+  }
+
+  .app-header .user-info span:not(.btn) {
+    display: none;
+  }
+
+  /* Contenido con menos padding */
+  .content-area {
+    padding: 10px !important;
+  }
+
+  /* Grids colapsan a 1 columna */
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Registro en pasos */
+  .registro-grid,
+  .step-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tablas scrollables */
+  .table-responsive::after {
+    display: block;
+  }
+
+  /* Modales a pantalla casi completa */
+  .modal-content {
+    max-width: none !important;
+    width: calc(100% - 16px) !important;
+    max-height: 95vh !important;
+    border-radius: 16px !important;
+  }
+
+  /* Stat cards en 2 columnas */
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Botones de acción apilados */
+  .action-buttons {
+    flex-direction: column !important;
+  }
+
+  .action-buttons button,
+  .action-buttons a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Formularios */
+  .form-grid-2col,
+  .form-row-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Factura térmica */
+  .factura-termica {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Steps de progreso */
+  .steps-bar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .steps-bar>div {
+    font-size: 11px;
+  }
+
+  /* Panel de búsqueda */
+  .busqueda-panel {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .busqueda-panel input,
+  .busqueda-panel button {
+    width: 100%;
+  }
+
+  /* Imagenología visor: colapsar grids */
+  .imagenologia-visor {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 300px auto !important;
+  }
+
+  .imagenologia-miniaturas {
+    flex-direction: row !important;
+    height: 80px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .imagenologia-miniaturas>div {
+    min-width: 70px !important;
+  }
+
+  /* Portal paciente móvil */
+  .portal-grid {
+    flex-direction: column !important;
+  }
+}
+
+/* ── Móvil pequeño (≤520px) ───────────────────────────────── */
+@media (max-width: 520px) {
+  h1 {
+    font-size: 18px !important;
+  }
+
+  h2 {
+    font-size: 16px !important;
+  }
+
+  h3 {
+    font-size: 15px !important;
+  }
+
+  .content-area {
+    padding: 8px !important;
+  }
+
+  /* Stats a 1 columna */
+  .stat-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Header simplificado */
+  .app-header {
+    padding: 8px 10px !important;
+  }
+
+  /* Agrupar botones de header */
+  .header-actions {
+    gap: 6px !important;
+  }
+
+  /* Inputs más grandes para dedos */
+  .form-control,
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+    /* Evita zoom automático en iOS */
+    min-height: 44px;
+    padding: 10px 12px !important;
+  }
+
+  /* Botones táctiles */
+  .btn,
+  button:not(.icon-btn) {
+    min-height: 44px !important;
+    padding: 10px 16px !important;
+  }
+
+  /* Reducir padding en cards */
+  .panel {
+    padding: 14px !important;
+  }
+}
+
+/* ── Impresión ────────────────────────────────────────────── */
+@media print {
+
+  .app-sidebar,
+  .app-header,
+  .sidebar-overlay,
+  .no-print,
+  button:not(.print-visible) {
+    display: none !important;
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+  }
+
+  .content-area {
+    padding: 0 !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  * {
+    box-shadow: none !important;
+  }
+}
+
+/* ── Impresión de Factura Térmica 80mm ─────────────────────── */
+@media print {
+
+  .factura-modal-overlay,
+  .modal-overlay {
+    position: static !important;
+    background: none !important;
+  }
+
+  .factura-modal-content,
+  .modal-content {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: none !important;
+    width: auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Contenedor principal de factura térmica */
+  div[style*="302px"],
+  .factura-termica {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    min-width: 80mm !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Barcode dentro de la factura */
+  .factura-termica svg,
+  .factura-termica canvas {
+    max-width: 100% !important;
+  }
+}
+
+/* ── Touch / móvil ───────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Eliminar hover effects que no aplican en touch */
+  .btn:hover {
+    transform: none;
+    filter: none;
+  }
+
+  /* Aumentar tap targets */
+  td button,
+  th button {
+    min-height: 38px;
+    padding: 8px 12px;
+  }
+
+  /* Indicadores táctiles */
+  .clickable-row:active {
+    background: rgba(135, 206, 235, 0.1);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   DARK MODE — Override inline styles
+   ══════════════════════════════════════════════════════════ */
+
+/* Force dark backgrounds on elements with inline background: white / #fff */
+html.dark div[style*="background: white"],
+html.dark div[style*="background: rgb(255"],
+html.dark div[style*="background-color: white"],
+html.dark div[style*="background-color: rgb(255"],
+html.dark section[style*="background: white"],
+html.dark section[style*="background: rgb(255"] {
+  background: #0F172A !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Light gray backgrounds → dark surface */
+html.dark div[style*="background: rgb(248"],
+html.dark div[style*="background: rgb(240"],
+html.dark div[style*="background: rgb(241"],
+html.dark div[style*="background: rgb(249"],
+html.dark div[style*="background: rgb(250"],
+html.dark div[style*="background: rgb(245"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Dark text colors → light for dark mode */
+html.dark h1[style*="color: rgb(15"],
+html.dark h2[style*="color: rgb(15"],
+html.dark h3[style*="color: rgb(15"],
+html.dark h4[style*="color: rgb(15"],
+html.dark h1[style*="color: rgb(30"],
+html.dark h2[style*="color: rgb(30"],
+html.dark h3[style*="color: rgb(30"],
+html.dark h4[style*="color: rgb(30"] {
+  color: #f1f5f9 !important;
+}
+
+html.dark span[style*="color: rgb(15"],
+html.dark span[style*="color: rgb(30"],
+html.dark div[style*="color: rgb(15"],
+html.dark div[style*="color: rgb(30"],
+html.dark p[style*="color: rgb(100"],
+html.dark p[style*="color: rgb(148"],
+html.dark span[style*="color: rgb(100"],
+html.dark span[style*="color: rgb(148"],
+html.dark div[style*="color: rgb(100"],
+html.dark div[style*="color: rgb(148"] {
+  color: #94a3b8 !important;
+}
+
+/* Tables in dark mode */
+html.dark table {
+  background: #0F172A !important;
+}
+
+html.dark thead tr,
+html.dark tr[style*="background: rgb(248"],
+html.dark tr[style*="background: rgb(241"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+html.dark th {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #94a3b8 !important;
+}
+
+html.dark tbody tr:hover {
+  background: rgba(0, 229, 255, 0.04) !important;
+}
+
+html.dark td {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Inputs/selects in dark mode */
+html.dark input[style],
+html.dark select[style],
+html.dark textarea[style] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark input:not([style]),
+html.dark select:not([style]),
+html.dark textarea:not([style]) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+/* Modals in dark mode */
+html.dark .modal-content {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+/* Dark mode: general body & text */
+html.dark body {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #f1f5f9;
+}
+
+html.dark p {
+  color: #cbd5e1;
+}
+
+/* Sidebar dark mode */
+html.dark .sidebar-v2 {
+  background: #0F172A !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Form controls in dark mode */
+html.dark .form-control {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Panel/card backgrounds in dark mode */
+html.dark .panel,
+html.dark .glass-panel {
+  background: #0F172A !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Badges / special colored backgrounds - keep as is */
+
+/* Light mode readability improvements */
+html:not(.dark) body {
+  color: #1e293b;
+}
+
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3,
+html:not(.dark) h4,
+html:not(.dark) h5,
+html:not(.dark) h6 {
+  color: #0f172a;
+}
+
+/* ══════════════════════════════════════════════════════════
+   DARK MODE EXTENDED — Icon boxes & inline hex colors
+   ══════════════════════════════════════════════════════════ */
+
+/* Icon boxes — pequeños divs con fondo rgba azul/verde/etc.
+   Se ven con fondo blanco en dark mode. */
+html.dark div[style*="background: rgba(37, 99, 235, 0.05)"],
+html.dark div[style*="background: rgba(37,99,235,0.05)"],
+html.dark div[style*="background: rgba(37, 99, 235, 0.1)"],
+html.dark div[style*="background: rgba(37,99,235,0.1)"],
+html.dark div[style*="background: rgba(16, 185, 129, 0.1)"],
+html.dark div[style*="background: rgba(239, 68, 68, 0.1)"],
+html.dark div[style*="background: rgba(245, 158, 11, 0.1)"],
+html.dark div[style*="background: rgba(6, 182, 212, 0.1)"],
+html.dark div[style*="background: rgba(99, 102, 241, 0.1)"] {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Light hex backgrounds in inline styles */
+html.dark div[style*="background: #eff6ff"],
+html.dark div[style*="background: #ecfdf5"],
+html.dark div[style*="background: #f8fafc"],
+html.dark div[style*="background: #f1f5f9"],
+html.dark div[style*="background: #f0f8ff"],
+html.dark div[style*="background: #f8f9fa"],
+html.dark div[style*="background: #fff3cd"],
+html.dark div[style*="background: #fef3c7"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ─── Inline dark text → light ─────────────────────────── */
+html.dark *[style*="color: #0f172a"] {
+  color: #e2e8f0 !important;
+}
+
+html.dark *[style*="color: #1e293b"] {
+  color: #e2e8f0 !important;
+}
+
+html.dark *[style*="color: #0f2940"] {
+  color: #e2e8f0 !important;
+}
+
+html.dark *[style*="color: #2d3748"] {
+  color: #e2e8f0 !important;
+}
+
+html.dark *[style*="color: #555"] {
+  color: #94a3b8 !important;
+}
+
+html.dark *[style*="color: #444"] {
+  color: #94a3b8 !important;
+}
+
+html.dark *[style*="color: #666"] {
+  color: #94a3b8 !important;
+}
+
+/* ─── White hex backgrounds in inline styles ─────────────── */
+html.dark div[style*="background: #fff"],
+html.dark div[style*="background: #ffffff"],
+html.dark div[style*="background: white"],
+html.dark div[style*="background: #FFFFFF"] {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+/* ─── Card borders → dark ────────────────────────────────── */
+html.dark div[style*="border: 1px solid #e2e8f0"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: #1e293b !important;
+}
+
+/* ─── Fix select dropdown ───────────────────────────────── */
+html.dark select {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ─── Table header row in dark ──────────────────────────── */
+html.dark tr[style*="background: #f8fafc"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ─── Stepper/wizard step cards ──────────────────────────── */
+html.dark div[style*="background: #eff6ff"] {
+  background: rgba(37, 99, 235, 0.12) !important;
+  border-color: rgba(37, 99, 235, 0.2) !important;
+}
+
+/* ─── Label & span text in forms ────────────────────────── */
+html.dark label[style*="color: #4a5568"],
+html.dark label[style*="color: #444"],
+html.dark label[style*="color: #555"],
+html.dark span[style*="color: #1e293b"],
+html.dark span[style*="color: #0f172a"] {
+  color: #cbd5e1 !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE MÓVIL — Media Queries
+   ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* ── Layout general ──────────────────────────────────── */
+  body {
+    font-size: 14px;
+  }
+
+  /* Padding-bottom para dejar espacio a la barra inferior */
+  main,
+  .main-content {
+    padding-bottom: 80px !important;
+  }
+
+  /* Encabezados de páginas más pequeños */
+  h1 {
+    font-size: 1.4rem !important;
+  }
+
+  h2 {
+    font-size: 1.2rem !important;
+  }
+
+  h3 {
+    font-size: 1.05rem !important;
+  }
+
+  /* ── Tablas — scroll horizontal + texto compacto ─────── */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* En tablas de resultados, ocultar columnas secundarias */
+  .col-hide-mobile {
+    display: none !important;
+  }
+
+  /* ── Grids — 1 columna en móvil ─────────────────────── */
+  div[style*="grid-template-columns"],
+  div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Cards de stats / KPIs ────────────────────────────── */
+  .stats-grid,
+  div[class*="grid-cols-4"],
+  div[class*="grid-cols-3"],
+  div[class*="grid-cols-2"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ── Formularios: campos full-width ─────────────────── */
+  input,
+  select,
+  textarea {
+    width: 100% !important;
+    min-height: 44px;
+    /* Touch target mínimo */
+    font-size: 16px !important;
+    /* Evita zoom en iOS */
+  }
+
+  /* ── Botones touch-friendly ─────────────────────────── */
+  button {
+    min-height: 40px;
+  }
+
+  /* ── Paneles/Cards con padding reducido ─────────────── */
+  div[style*="padding: 32px"],
+  div[style*="padding: 28px"],
+  div[style*="padding: 24px"] {
+    padding: 16px !important;
+  }
+
+  div[style*="padding: 20px"] {
+    padding: 14px !important;
+  }
+
+  /* ── Modales — pantalla completa en móvil ────────────── */
+  .modal-content {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    margin: 16px auto !important;
+    padding: 16px !important;
+    max-height: 90vh !important;
+    overflow-y: auto;
+  }
+
+  /* ── Header — compacto ───────────────────────────────── */
+  header {
+    padding: 0 12px !important;
+  }
+
+  /* ── Dashboard padings ───────────────────────────────── */
+  .main-padding,
+  section[style*="padding"] {
+    padding: 12px !important;
+  }
+
+  /* ── Textos overflow en móvil ───────────────────────── */
+  p,
+  span,
+  div {
+    word-break: break-word;
+  }
+
+  /* ── Flex wrapping ───────────────────────────────────── */
+  div[style*="display: flex"][style*="gap"] {
+    flex-wrap: wrap;
+  }
+
+  /* ── Ocultar iconos decorativos grandes en mobile ───── */
+  .icon-decorative {
+    display: none !important;
+  }
+
+  /* ── Safe area para iOS (notch) ──────────────────────── */
+  nav[style*="bottom: 0"] {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ── RegistroInteligente — steps en 1 col ───────────── */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Factura térmica — no mostrar en móvil normal ────── 
+     Solo se imprime/abre a través del botón de imprimir */
+  .factura-termica-preview {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 480px) {
+
+  /* Muy pequeño (iPhone SE, Galaxy A) */
+  h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .stats-grid,
+  div[class*="grid-cols-4"],
+  div[class*="grid-cols-3"],
+  div[class*="grid-cols-2"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ocultar textos secundarios en header */
+  .header-subtitle {
+    display: none !important;
+  }
+
+  td,
+  th {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+}
+
+/* ── Tablet landscape (768-1024px) ───────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  div[style*="grid-template-columns"],
+  div[style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .stats-grid,
+  div[class*="grid-cols-4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}

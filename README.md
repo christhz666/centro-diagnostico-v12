@@ -1,0 +1,71 @@
+# Centro Diagnóstico SaaS Template
+
+Plantilla base para desplegar nuevas instancias SaaS del sistema de centro diagnóstico.
+
+## Objetivo de esta plantilla
+
+- Repositorio **sin datos de clientes**.
+- Branding y configuración inicial en modo plantilla.
+- Provisioning de instancia por comando único.
+
+## Requisitos
+
+- Node.js 18+
+- npm 9+
+- MongoDB accesible (local, Docker o servicio gestionado)
+- Git
+
+## Comandos principales
+
+- `npm start` — iniciar backend
+- `npm run dev` — backend con nodemon
+- `npm test` — tests backend (Jest)
+- `npm run env:prepare:prod` — generar/normalizar secretos críticos en `.env`
+- `npm run template:saas:clean` — limpiar artefactos locales antes de publicar plantilla
+
+## Provisioning en un comando (nueva instancia)
+
+```bash
+bash scripts/provision-saas.sh \
+  --repo https://github.com/tu-org/centro-diagnostico-v11-main.git \
+  --dir /opt/centros/cliente-a \
+  --domain cliente-a.tu-dominio.com \
+  --api-url https://cliente-a.tu-dominio.com/api \
+  --mongo-uri mongodb://mongo:27017/centro_cliente_a \
+  --admin-email admin@cliente-a.com
+```
+
+### Qué hace el script
+
+1. Clona el repo en un directorio nuevo.
+2. Ejecuta limpieza de plantilla (`template:saas:clean`).
+3. Instala dependencias backend y frontend.
+4. Genera secretos de producción (`JWT_SECRET`, `OFFLINE_SYNC_KEY`).
+5. Escribe variables base de la instancia (`MONGODB_URI`, CORS, URLs).
+6. Crea/actualiza admin inicial (opcional).
+
+## Checklist rápido “SaaS vacío”
+
+Antes de publicar release/template:
+
+- [ ] No existe `.env` versionado.
+- [ ] No existen carpetas runtime con datos (`uploads/`, `mongodb_data/`, `logs/`).
+- [ ] No existen artefactos temporales (`release-gate-report.json`, `.vc/`, zips de trabajo).
+- [ ] No hay scripts/documentación legacy de stacks no usados.
+- [ ] `createAdmin.js` no usa credenciales hardcodeadas.
+- [ ] Frontend no contiene dominios/branding de clientes anteriores.
+
+## Variables críticas
+
+- `MONGODB_URI` (obligatoria)
+- `JWT_SECRET` (obligatoria, única por instancia)
+- `OFFLINE_SYNC_KEY` (obligatoria para sync offline)
+- `CORS_ORIGINS`
+- `FRONTEND_URL`
+- `PUBLIC_API_URL`
+
+## Notas
+
+- Este repo usa backend Node/Express (`server.js`) como runtime principal.
+- No ejecutar seeds demo en producción.
+- Seeds internas (solo demo): ver `docs/SEEDS_INTERNAL_ONLY.md`.

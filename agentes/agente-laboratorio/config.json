@@ -1,0 +1,27 @@
+{
+    "servidor": {
+        "url": "https://TU-DOMINIO-O-IP-VPS.com",
+        "apiKey": ""
+    },
+    "equipos": [
+        {
+            "nombre": "ABX Micros 60",
+            "tipo": "hematologia",
+            "protocolo": "SERIAL",
+            "comPort": "COM4",
+            "baudRate": 9600,
+            "activo": true
+        },
+        {
+            "nombre": "Mindray BS-200",
+            "tipo": "quimica",
+            "protocolo": "TCP",
+            "ip": "192.168.1.120",
+            "puerto": 5000,
+            "bindIp": "0.0.0.0",
+            "activo": true
+        }
+    ],
+    "intervaloReconexion": 10000,
+    "logArchivo": "agente.log"
+}

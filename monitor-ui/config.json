@@ -1,0 +1,51 @@
+{
+    "puertUI": 3000,
+    "directorioLogs": "./logs",
+    "equipos": [
+        {
+            "nombre": "Mindray BC-6800",
+            "tipo": "hematologia",
+            "protocolo": "TCP",
+            "activo": true,
+            "tcp": {
+                "modo": "proxy",
+                "puertoEscucha": 9201,
+                "destinoIp": "127.0.0.1",
+                "destinoPuerto": 9100
+            }
+        },
+        {
+            "nombre": "Mindray BS-200",
+            "tipo": "quimica",
+            "protocolo": "SERIAL",
+            "activo": false,
+            "serial": {
+                "puertoReal": "COM3",
+                "baudRate": 9600,
+                "dataBits": 8,
+                "stopBits": 1,
+                "parity": "none"
+            }
+        },
+        {
+            "nombre": "ABX Micros 60",
+            "tipo": "hematologia",
+            "protocolo": "SERIAL",
+            "activo": true,
+            "serial": {
+                "puertoReal": "COM4",
+                "baudRate": 9600,
+                "dataBits": 8,
+                "stopBits": 1,
+                "parity": "none"
+            }
+        }
+    ],
+    "opciones": {
+        "logHexadecimal": true,
+        "logTexto": true,
+        "logProtocolo": true,
+        "maxTamanoLogMB": 50,
+        "rotarLogs": true
+    }
+}

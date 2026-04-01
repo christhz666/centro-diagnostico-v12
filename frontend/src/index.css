@@ -1,0 +1,331 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        color-scheme: light;
+    }
+
+    html.dark {
+        color-scheme: dark;
+    }
+
+    :root {
+        --legacy-surface: #e9eff4;
+        --legacy-surface-muted: #f2f6f9;
+        --legacy-surface-hover: #dce5ec;
+        --legacy-surface-panel: rgba(223, 232, 238, 0.74);
+        --legacy-border: #cfd9e2;
+        --legacy-border-soft: #e3eaf0;
+        --legacy-text: #2b353f;
+        --legacy-text-strong: #202933;
+        --legacy-text-muted: #6f7d8c;
+        --legacy-accent-strong: #00c6cf;
+        --legacy-info-bg: #e8f6f8;
+        --legacy-info-border: #b9e9ee;
+    }
+    .dark {
+        --legacy-surface: #1e293b;
+        --legacy-surface-muted: #0f172a;
+        --legacy-surface-hover: #334155;
+        --legacy-surface-panel: rgba(59, 130, 246, 0.1);
+        --legacy-border: #334155;
+        --legacy-border-soft: #1e293b;
+        --legacy-text: #cbd5e1;
+        --legacy-text-strong: #f8fafc;
+        --legacy-text-muted: #94a3b8;
+        --legacy-accent-strong: #3b82f6;
+        --legacy-info-bg: rgba(59, 130, 246, 0.1);
+        --legacy-info-border: rgba(59, 130, 246, 0.2);
+    }
+
+    body {
+        @apply antialiased text-slate-800 dark:text-slate-200 bg-background-light dark:bg-background-dark font-body;
+        background-image:
+            radial-gradient(1px 1px at 24px 18px, rgba(94, 124, 146, 0.14), rgba(0, 0, 0, 0)),
+            radial-gradient(1.5px 1.5px at 92px 62px, rgba(94, 124, 146, 0.11), rgba(0, 0, 0, 0)),
+            linear-gradient(180deg, #e6eef4 0%, #dde7ef 100%);
+        background-size: 220px 220px, 220px 220px, 100% 100%;
+        background-attachment: fixed;
+    }
+
+    html:not(.dark) .container,
+    html:not(.dark) .main-content,
+    html:not(.dark) .card,
+    html:not(.dark) .panel {
+        background: rgba(223, 232, 238, 0.72);
+        color: var(--legacy-text);
+        border: 1px solid rgba(147, 168, 184, 0.26);
+        box-shadow: 0 14px 28px rgba(46, 68, 85, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    html:not(.dark) .bg-white,
+    html:not(.dark) [class*="bg-white/"] {
+        background-color: rgba(220, 230, 238, 0.82) !important;
+        border-color: rgba(147, 168, 184, 0.26) !important;
+    }
+
+    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+    html:not(.dark) select,
+    html:not(.dark) textarea {
+        background: rgba(243, 247, 250, 0.9) !important;
+        border-color: rgba(147, 168, 184, 0.35) !important;
+        color: #273340 !important;
+        box-shadow: inset 0 1px 2px rgba(60, 87, 108, 0.08);
+    }
+
+    html:not(.dark) [style*="background: white"],
+    html:not(.dark) [style*="background:'white'"],
+    html:not(.dark) [style*="background: 'white'"],
+    html:not(.dark) [style*="background-color: rgb(255"],
+    html:not(.dark) [style*="background: rgb(255"] {
+        background: rgba(220, 230, 238, 0.82) !important;
+        border-color: rgba(147, 168, 184, 0.3) !important;
+    }
+
+    html:not(.dark) .glass-card,
+    html:not(.dark) .card,
+    html:not(.dark) .panel {
+        box-shadow:
+            0 12px 24px rgba(38, 57, 74, 0.09),
+            0 1px 0 rgba(255, 255, 255, 0.45) inset;
+        animation: daylight-float 9s ease-in-out infinite;
+    }
+
+    html:not(.dark) .glass-card:hover,
+    html:not(.dark) .card:hover,
+    html:not(.dark) .panel:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 18px 34px rgba(38, 57, 74, 0.16),
+            0 1px 0 rgba(255, 255, 255, 0.5) inset;
+        transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .dark body {
+        /* The Celestial Lab - Starry Pattern Background */
+        background-color: #010413;
+        background-image: 
+            radial-gradient(1px 1px at 20px 30px, #ffffff22, rgba(0,0,0,0)),
+            radial-gradient(1.5px 1.5px at 40px 70px, #ffffff33, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 50px 160px, #ffffff22, rgba(0,0,0,0)),
+            radial-gradient(1.5px 1.5px at 90px 40px, #ffffff33, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 130px 80px, #ffffff22, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 160px 120px, #ffffff33, rgba(0,0,0,0));
+        background-size: 200px 200px;
+        background-attachment: fixed;
+    }
+
+    /* Global Dark Mode Overrides for Legacy Containers */
+    .dark .container,
+    .dark .main-content,
+    .dark .card,
+    .dark .panel {
+        @apply bg-surface-dark text-slate-200 border-transparent shadow-glass-glow;
+        backdrop-filter: blur(12px);
+    }
+    
+
+
+    .dark input:not([type="checkbox"]):not([type="radio"]),
+    .dark select,
+    .dark textarea {
+        @apply bg-[#000000] border-transparent text-white placeholder-gray-500 focus:ring-1 focus:ring-primary focus:border-primary shadow-inner-glow transition-all;
+    }
+
+    /* Native dropdown fallback for Windows/Chromium where option popup ignores dark backgrounds */
+    .dark select,
+    .dark option,
+    .dark optgroup {
+        background-color: #111827 !important;
+        color: #e5e7eb !important;
+    }
+
+    html:not(.dark) select,
+    html:not(.dark) option,
+    html:not(.dark) optgroup {
+        background-color: #f8fafc !important;
+        color: #1f2937 !important;
+    }
+
+    .dark table {
+        @apply text-slate-300;
+    }
+
+    .dark th {
+        @apply bg-surface-dark-high border-white/5 text-gray-400 font-display tracking-widest text-[10px] uppercase;
+    }
+
+    .dark td {
+        @apply border-white/5;
+    }
+
+    /* ── Extended Dark Mode: override inline white backgrounds ── */
+    .dark div[style*="background: 'white'"],
+    .dark div[style*="background: white"],
+    .dark div[style*="background:'white'"] {
+        background: #0F172A !important;
+        color: #e2e8f0 !important;
+        border-color: rgba(255,255,255,0.08) !important;
+    }
+
+    .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+        color: #f1f5f9 !important;
+    }
+
+    .dark p {
+        color: #cbd5e1;
+    }
+
+    .glass-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 24px;
+        background: rgba(223, 232, 238, 0.78);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(147, 168, 184, 0.24);
+        box-shadow: 0 16px 30px rgba(46, 68, 85, 0.12);
+}
+.dark .glass-card {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+    .dark span {
+        color: inherit;
+    }
+
+    .dark label {
+        color: #94a3b8 !important;
+    }
+
+    .dark code {
+        background: rgba(255,255,255,0.08) !important;
+        color: #e2e8f0 !important;
+    }
+
+    /* Override inline dark text colors in dark mode */
+    .dark [style*="color: rgb(15"],
+    .dark [style*="color: rgb(30"],
+    .dark [style*="color: rgb(51"],
+    .dark [style*="color: rgb(55"],
+    .dark [style*="color: rgb(68"],
+    .dark [style*="color: rgb(85"] {
+        color: #e2e8f0 !important;
+    }
+
+    .dark [style*="color: rgb(100"],
+    .dark [style*="color: rgb(148"],
+    .dark [style*="color: rgb(102"],
+    .dark [style*="color: rgb(119"],
+    .dark [style*="color: rgb(136"],
+    .dark [style*="color: rgb(153"],
+    .dark [style*="color: rgb(170"] {
+        color: #94a3b8 !important;
+    }
+
+    /* Override inline white/light backgrounds in dark mode */
+    .dark [style*="background: rgb(255"],
+    .dark [style*="background-color: rgb(255"],
+    .dark [style*="background: white"] {
+        background: #0F172A !important;
+    }
+
+    .dark [style*="background: rgb(248"],
+    .dark [style*="background: rgb(241"],
+    .dark [style*="background: rgb(240"],
+    .dark [style*="background: rgb(245"],
+    .dark [style*="background: rgb(249"],
+    .dark [style*="background: rgb(250"] {
+        background: rgba(255,255,255,0.03) !important;
+    }
+
+    /* Override inline light borders in dark mode */
+    .dark [style*="border-color: rgb(226"],
+    .dark [style*="border-color: rgb(241"],
+    .dark [style*="border: 1px solid rgb(226"],
+    .dark [style*="border: 1px solid rgb(241"] {
+        border-color: rgba(255,255,255,0.08) !important;
+    }
+}
+
+@layer components {
+    .glass-header {
+        @apply bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-white/10;
+        background-color: rgba(227, 235, 241, 0.82);
+        border-bottom-color: rgba(147, 168, 184, 0.3);
+    }
+
+    .glow-border {
+        @apply relative border border-gray-200 dark:border-white/10;
+        border-color: rgba(147, 168, 184, 0.35);
+    }
+
+    /* Custom Scrollbar for Next-Gen Look */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.33);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.pulse-circle {
+    animation: pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes daylight-float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-1.5px);
+    }
+}
+
+@keyframes daylight-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html:not(.dark) main,
+html:not(.dark) aside,
+html:not(.dark) header {
+    animation: daylight-reveal 320ms ease-out;
+}

@@ -1,0 +1,14 @@
+{
+  "equipoId": "REEMPLAZAR_POR_ID_EQUIPO",
+  "apiBaseUrl": "https://tu-dominio.com",
+  "apiKey": "PEGAR_API_KEY_GENERADA_EN_EL_PANEL",
+  "pollingMs": 5000,
+  "agenteVersion": "1.0.0",
+  "modoOperacion": "manual_pull",
+  "enviarDemoAutomatico": false,
+  "mindray": {
+    "ip": "192.168.1.120",
+    "puerto": 5000,
+    "protocolo": "ASTM"
+  }
+}

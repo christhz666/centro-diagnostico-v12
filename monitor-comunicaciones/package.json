@@ -1,0 +1,17 @@
+{
+    "name": "monitor-comunicaciones-laboratorio",
+    "version": "1.0.0",
+    "description": "Monitor pasivo de comunicaciones de equipos de laboratorio. Registra datos sin interferir con el software existente.",
+    "main": "monitor.js",
+    "scripts": {
+        "start": "node monitor.js",
+        "test": "node monitor.js --test",
+        "build:exe": "pkg monitor.js --targets node18-win-x64 --output monitor-comunicaciones.exe"
+    },
+    "dependencies": {
+        "serialport": "^12.0.0"
+    },
+    "devDependencies": {
+        "pkg": "^5.8.1"
+    }
+}

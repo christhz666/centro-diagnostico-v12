@@ -1,0 +1,40 @@
+{
+    "name": "monitor-comunicaciones-ui",
+    "version": "2.0.0",
+    "description": "Monitor de comunicaciones de equipos de laboratorio con interfaz gráfica",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "test": "node server.js --test",
+        "dev": "node server.js",
+        "build": "npx pkg server.js --targets node18-win-x64 --output monitor-lab.exe --compress GZip"
+    },
+    "pkg": {
+        "assets": [
+            "public/**/*",
+            "lib/**/*"
+        ],
+        "targets": [
+            "node18-win-x64"
+        ],
+        "outputPath": "."
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "serialport": "^13.0.0",
+        "ws": "^8.16.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "keywords": [
+        "laboratorio",
+        "monitor",
+        "ASTM",
+        "HL7",
+        "serial",
+        "TCP"
+    ],
+    "author": "Centro Diagnóstico",
+    "license": "MIT"
+}
