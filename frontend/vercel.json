@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://centro-diagnostico-v12-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://centro-diagnostico-v12-production.up.railway.app/uploads/:path*"
+    },
+    {
+      "source": "/public/:path*",
+      "destination": "https://centro-diagnostico-v12-production.up.railway.app/public/:path*"
+    }
+  ]
+}
