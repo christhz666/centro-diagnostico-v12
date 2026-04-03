@@ -311,10 +311,6 @@ class ApiService {
         return this.request('/citas/registro/' + encodeURIComponent(registroId));
     }
 
-    async buscarHistorialPaciente(query) {
-        return this.request('/citas/busqueda/paciente?query=' + encodeURIComponent(query), { noUnwrap: true });
-    }
-
     // FACTURAS
     async getFacturas(params = {}) {
         const query = new URLSearchParams(params).toString();

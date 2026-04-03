@@ -177,8 +177,19 @@ const DicomViewer = ({ imagenes = [], ajustesIniciales = {}, onCambioAjustes = n
     const [loading, setLoading] = useState(false);
     const [fallbackImage, setFallbackImage] = useState(null);
 
+    // TODO: conservar para modo comparación en próxima iteración
+    void containerRef2;
+    void ready2;
+    void setReady2;
+    void idx2;
+    void setIdx2;
+    void comparisonMode;
+    void setComparisonMode;
+    void fallbackImage;
+
     const readyRef = useRef(false);
     const readyRef2 = useRef(false);
+    void readyRef2;
 
     /* ── Habilitar Cornerstone cuando el elemento tiene tamaño ── */
     useEffect(() => {
@@ -335,7 +346,7 @@ const DicomViewer = ({ imagenes = [], ajustesIniciales = {}, onCambioAjustes = n
             console.error('DicomViewer: Unexpected error in loadImage:', unexpectedError);
             setLoading(false);
         }
-    }, [ready, invert, rot, flipH, flipV, tool, ajustesIniciales]);
+    }, [invert, rot, flipH, flipV, tool, ajustesIniciales]);
 
     /* ── Activar herramienta ─────────────────────────────────── */
     const activateTool = (tid) => {

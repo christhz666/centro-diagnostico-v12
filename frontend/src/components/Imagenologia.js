@@ -100,6 +100,8 @@ const Imagenologia = ({ setHideDashboardBars }) => {
   const [nombreNuevaPlantilla, setNombreNuevaPlantilla] = useState('');
   const [mostrarSoloVisor, setMostrarSoloVisor] = useState(false);
   const [mostrarBarraReporte, setMostrarBarraReporte] = useState(true);
+  void mostrarBarraReporte;
+  void setMostrarBarraReporte;
   const [dashboardBarsVisible, setDashboardBarsVisible] = useState(true); 
   const [imagenesParaImprimir, setImagenesParaImprimir] = useState([]); 
   const [ajustes, setAjustes] = useState(null); 
@@ -123,23 +125,33 @@ const Imagenologia = ({ setHideDashboardBars }) => {
     finally { setLoading(false); }
   }, [filtroEstado]);
 
+  const guardarReporteAuto = useCallback(async (reporteOpcional = null, ajustesOpcionales = null) => {
+    if (!estudioActual || !canEdit) return;
+    const payload = { reporte: reporteOpcional || reporte, plantilla: tipoPlantilla };
+    if (ajustesOpcionales) payload.ajustes = ajustesOpcionales;
+    await api.updateImagenologiaWorkspace(estudioActual._id || estudioActual.id, payload);
+  }, [canEdit, estudioActual, reporte, tipoPlantilla]);
+
   // Auto-guardado cada 30 segundos en modo visor
   useEffect(() => {
     if (vista !== 'visor' || !canEdit || !estudioActual) return;
-    
+
     const intervalId = setInterval(() => {
       console.log('Auto-guardando reporte...');
       setAutoSaveStatus('saving');
-      guardarReporte(reporte, ajustes).then(() => {
-        setAutoSaveStatus('saved');
-        setTimeout(() => setAutoSaveStatus('idle'), 2000);
-      }).catch(() => {
-        setAutoSaveStatus('idle');
-      });
+
+      guardarReporteAuto(reporte, ajustes)
+        .then(() => {
+          setAutoSaveStatus('saved');
+          setTimeout(() => setAutoSaveStatus('idle'), 2000);
+        })
+        .catch(() => {
+          setAutoSaveStatus('idle');
+        });
     }, 30000); // 30 segundos
-    
+
     return () => clearInterval(intervalId);
-  }, [vista, canEdit, estudioActual, reporte, tipoPlantilla, ajustes]);
+  }, [vista, canEdit, estudioActual, reporte, ajustes, guardarReporteAuto]);
 
   // Escape key para volver a lista
   useEffect(() => {
@@ -259,10 +271,10 @@ const Imagenologia = ({ setHideDashboardBars }) => {
     if (canEdit && estudioActual) {
       if (guardadoTimeoutRef.current) clearTimeout(guardadoTimeoutRef.current);
       guardadoTimeoutRef.current = setTimeout(() => {
-        guardarReporte(reporte, nuevosAjustes);
+        guardarReporteAuto(reporte, nuevosAjustes).catch(() => {});
       }, 1500); 
     }
-  }, [canEdit, estudioActual, reporte]);
+  }, [canEdit, estudioActual, reporte, guardarReporteAuto]);
 
   const finalizarReporte = async () => {
     if (!estudioActual || !canEdit) return;

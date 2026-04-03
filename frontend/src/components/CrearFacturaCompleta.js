@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaFileInvoiceDollar, FaCheck, FaArrowLeft, FaClipboardList } from 'react-icons/fa';
@@ -22,36 +22,37 @@ function CrearFacturaCompleta() {
   });
 
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-  const headers = { Authorization: `Bearer ${token}` };
   const getId = (obj) => obj?._id || obj?.id;
+
+  const getHeaders = useCallback(() => ({ Authorization: `Bearer ${token}` }), [token]);
+
+  const cargarOrdenesPendientes = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API}/ordenes/`, { headers: getHeaders() });
+      const citas = res.data?.data || res.data?.ordenes || [];
+      const pendientes = (Array.isArray(citas) ? citas : []).filter(c => !c.pagado);
+      setOrdenesPendientes(pendientes);
+    } catch (err) { console.error(err); }
+  }, [getHeaders]);
 
   useEffect(() => {
     cargarOrdenesPendientes();
-  }, []);
+  }, [cargarOrdenesPendientes]);
+
+  const cargarOrdenDetalle = useCallback(async (id) => {
+    try {
+      const res = await axios.get(`${API}/ordenes/${id}`, { headers: getHeaders() });
+      const orden = res.data?.data || res.data;
+      setOrdenSeleccionada(orden);
+      setOrdenDetalle(orden);
+    } catch (err) { console.error(err); }
+  }, [getHeaders]);
 
   useEffect(() => {
     if (ordenId) {
       cargarOrdenDetalle(ordenId);
     }
-  }, [ordenId]);
-
-  const cargarOrdenesPendientes = async () => {
-    try {
-      const res = await axios.get(`${API}/ordenes/`, { headers });
-      const citas = res.data?.data || res.data?.ordenes || [];
-      const pendientes = (Array.isArray(citas) ? citas : []).filter(c => !c.pagado);
-      setOrdenesPendientes(pendientes);
-    } catch (err) { console.error(err); }
-  };
-
-  const cargarOrdenDetalle = async (id) => {
-    try {
-      const res = await axios.get(`${API}/ordenes/${id}`, { headers });
-      const orden = res.data?.data || res.data;
-      setOrdenSeleccionada(orden);
-      setOrdenDetalle(orden);
-    } catch (err) { console.error(err); }
-  };
+  }, [ordenId, cargarOrdenDetalle]);
 
   const seleccionarOrden = (orden) => {
     setOrdenSeleccionada(orden);
@@ -73,7 +74,7 @@ function CrearFacturaCompleta() {
     if (!ordenSeleccionada) { alert('Seleccione una orden'); return; }
     setLoading(true);
     try {
-      const res = await axios.post(`${API}/facturas/crear-desde-orden/${getId(ordenSeleccionada)}`, formData, { headers });
+      const res = await axios.post(`${API}/facturas/crear-desde-orden/${getId(ordenSeleccionada)}`, formData, { headers: getHeaders() });
       const facturaData = res.data?.data || res.data?.factura || res.data;
       
       setFacturaCreada({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import api from '../services/api';
@@ -45,7 +45,7 @@ const Resultados = () => {
     return 'normal';
   };
 
-  const normalizarListaValores = (valores = []) => {
+  const normalizarListaValores = useCallback((valores = []) => {
     if (!Array.isArray(valores) || valores.length === 0) {
       return [{ parametro: '', valor: '', unidad: '', valorReferencia: '', estado: 'normal' }];
     }
@@ -53,7 +53,7 @@ const Resultados = () => {
       ...v,
       estado: normalizarEstadoValor(v?.estado)
     }));
-  };
+  }, []);
 
   const esEstudioLaboratorio = (estudio = {}) => {
     const texto = `${estudio?.tipo || ''} ${estudio?.categoria || ''} ${estudio?.nombre || ''}`
@@ -106,6 +106,23 @@ const Resultados = () => {
   const canEditResultados = ['admin', 'bioanalista', 'recepcionista', 'recepcion', 'laboratorio'].includes(rolActual);
   const canValidarResultados = rolActual === 'bioanalista';
 
+  const abrirModalEditar = useCallback((resultado) => {
+    setResultadoEditar(resultado);
+    setNuevoResultado({
+      valores: normalizarListaValores(resultado.valores),
+      interpretacion: resultado.interpretacion || '',
+      observaciones: resultado.observaciones || '',
+      conclusion: resultado.conclusion || ''
+    });
+    setShowModal(true);
+  }, [normalizarListaValores]);
+
+  const editResultId = location?.state?.editResultId;
+  const resultadoDesdeLocation = useMemo(() => {
+    if (!editResultId || resultados.length === 0 || !canEditResultados) return null;
+    return resultados.find(r => r?._id === editResultId) || null;
+  }, [editResultId, resultados, canEditResultados]);
+
   useEffect(() => {
     fetchResultados();
     fetchCitasPendientes();
@@ -120,14 +137,10 @@ const Resultados = () => {
   }, [fetchResultados, fetchCitasPendientes]);
 
   useEffect(() => {
-    const editResultId = location?.state?.editResultId;
-    if (!editResultId || resultados.length === 0 || !canEditResultados) return;
-    const objetivo = resultados.find(r => r?._id === editResultId);
-    if (objetivo) {
-      abrirModalEditar(objetivo);
-      navigate('/resultados', { replace: true, state: {} });
-    }
-  }, [location?.state, resultados, canEditResultados, navigate]);
+    if (!resultadoDesdeLocation) return;
+    abrirModalEditar(resultadoDesdeLocation);
+    navigate('/resultados', { replace: true, state: {} });
+  }, [resultadoDesdeLocation, abrirModalEditar, navigate]);
 
   const abrirModalNuevo = (cita) => {
     setCitaSeleccionada(cita);
@@ -136,17 +149,6 @@ const Resultados = () => {
       interpretacion: '',
       observaciones: '',
       conclusion: ''
-    });
-    setShowModal(true);
-  };
-
-  const abrirModalEditar = (resultado) => {
-    setResultadoEditar(resultado);
-    setNuevoResultado({
-      valores: normalizarListaValores(resultado.valores),
-      interpretacion: resultado.interpretacion || '',
-      observaciones: resultado.observaciones || '',
-      conclusion: resultado.conclusion || ''
     });
     setShowModal(true);
   };

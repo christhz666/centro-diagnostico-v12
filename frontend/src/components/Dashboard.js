@@ -2,7 +2,7 @@ import React, { startTransition, useEffect, useState } from 'react';
 import api from '../services/api';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend,
+    PieChart, Pie, Cell,
     AreaChart, Area
 } from 'recharts';
 
