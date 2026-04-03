@@ -17,6 +17,10 @@ const verifyAppReadPermissions = async () => {
     await Configuracion.findOne({ clave: 'empresa_nombre' }).lean();
 };
 
+const isStrictMongoStartupCheckEnabled = () => {
+    return /^(1|true|yes|on)$/i.test(String(process.env.MONGODB_STRICT_STARTUP_CHECK || 'false'));
+};
+
 const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
@@ -31,9 +35,18 @@ const connectDB = async () => {
             console.log('✅ Verificación de permisos MongoDB OK (lectura de configuración)');
         } catch (permError) {
             if (isMongoAuthError(permError)) {
+                const strictStartup = isStrictMongoStartupCheckEnabled();
                 console.error('❌ MongoDB autenticó conexión pero no tiene permisos suficientes para consultas de la app.');
                 console.error('   Revisá MONGODB_URI (usuario/clave/db/authSource) y roles del usuario en la base de datos objetivo.');
-                throw permError;
+
+                if (strictStartup) {
+                    console.error('🛑 MONGODB_STRICT_STARTUP_CHECK=true, abortando arranque por error de permisos MongoDB.');
+                    throw permError;
+                }
+
+                console.warn('⚠️  MONGODB_STRICT_STARTUP_CHECK=false, continuando arranque para evitar downtime.');
+                console.warn('⚠️  Algunas rutas que consultan Mongo pueden fallar hasta corregir credenciales/permisos.');
+                return conn;
             }
             // Otros errores (ej. colección vacía/no inicializada) no deben tumbar el arranque.
             console.warn(`⚠️  Verificación de permisos MongoDB omitida: ${permError.message}`);
