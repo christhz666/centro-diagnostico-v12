@@ -69,6 +69,24 @@ const parseCorsOrigins = () => {
     return origins;
 };
 
+const isOrthancEnabledByEnv = () => {
+    const mode = String(process.env.DICOM_MODE || 'none').trim().toLowerCase();
+    return mode === 'orthanc';
+};
+
+const isOrthancEnabledByDb = async () => {
+    try {
+        const Configuracion = require('./models/Configuracion');
+        const cfgDoc = await Configuracion.findOne({ clave: 'ris_config' }).lean();
+        if (!cfgDoc || !cfgDoc.valor) return false;
+
+        const parsed = JSON.parse(cfgDoc.valor);
+        return Boolean(parsed?.orthanc?.habilitado);
+    } catch {
+        return false;
+    }
+};
+
 const corsOrigins = parseCorsOrigins();
 
 // ==========================================
@@ -293,14 +311,19 @@ const startServer = async () => {
             console.log('ℹ️ Auto-inicio de equipos deshabilitado en servidor (EQUIPOS_AUTO_START=false)');
         }
 
-        // Iniciar polling de Orthanc para sincronizar imágenes DICOM
-        const orthancService = require('./services/orthancService');
-        setTimeout(() => {
-            console.log('🔄 Iniciando sincronización en background con Servidor Orthanc...');
-            setInterval(() => {
-                orthancService.sincronizarImagenesListas().catch(e => console.error(e));
-            }, 30000); // Polling cada 30 segundos
-        }, 5000);
+        // Iniciar polling de Orthanc SOLO cuando esté habilitado
+        const shouldStartOrthancPolling = isOrthancEnabledByEnv() || await isOrthancEnabledByDb();
+        if (shouldStartOrthancPolling) {
+            const orthancService = require('./services/orthancService');
+            setTimeout(() => {
+                console.log('🔄 Iniciando sincronización en background con Servidor Orthanc...');
+                setInterval(() => {
+                    orthancService.sincronizarImagenesListas().catch(e => console.error(e));
+                }, 30000); // Polling cada 30 segundos
+            }, 5000);
+        } else {
+            console.log('ℹ️ Polling de Orthanc deshabilitado (DICOM_MODE!=orthanc y ris_config.orthanc.habilitado=false).');
+        }
 
         // Graceful shutdown
         const shutdown = (signal) => {
