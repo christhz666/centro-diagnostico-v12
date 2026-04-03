@@ -103,6 +103,20 @@ Antes de publicar release/template:
 - `FRONTEND_URL`
 - `PUBLIC_API_URL`
 
+## Portabilidad entre plataformas (importante)
+
+Este template está pensado para **no acoplarse a un solo proveedor**.
+
+- Frontend (Vercel o equivalente):
+  - Definir `BACKEND_URL` en entorno del frontend.
+  - `frontend/vercel.json` usa `routes` con `${BACKEND_URL}` para proxy de `/api`, `/uploads` y `/public`.
+  - Si cambiás de backend/provider, sólo cambiás `BACKEND_URL` (sin tocar código/rutas hardcodeadas).
+
+- Backend + Mongo (Railway, VPS, Docker local, etc.):
+  - Siempre configurar `MONGODB_URI` explícito por entorno.
+  - En Docker Compose, `MONGODB_URI` ahora es sobreescribible por variable para soportar auth, `authSource`, replica set o servicios gestionados.
+  - Si no se define, usa fallback local `mongodb://mongo:27017/centro_${CENTRO_ID:-default}` para desarrollo.
+
 ## Notas
 
 - Este repo usa backend Node/Express (`server.js`) como runtime principal.

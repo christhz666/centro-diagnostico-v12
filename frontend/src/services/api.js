@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 // Detección robusta de entorno Tauri — funciona en dev y en producción
 const isTauri = Boolean(
   window.__TAURI_INTERNALS__ ||
@@ -5,10 +7,76 @@ const isTauri = Boolean(
   window.location.protocol === 'tauri:' ||
   window.location.hostname === 'tauri.localhost'
 );
+
+const normalizeApiUrl = (rawValue) => {
+  const raw = String(rawValue || '').trim();
+  if (!raw) return '/api';
+
+  const noTrailing = raw.replace(/\/+$/, '');
+  if (noTrailing === '/api') return '/api';
+  if (/\/api$/i.test(noTrailing)) return noTrailing;
+  return `${noTrailing}/api`;
+};
+
 // REACT_APP_API_URL se inyecta en compilación para builds de escritorio
 // Si no está definido, la detección de Tauri aplica como fallback
-const API_URL = process.env.REACT_APP_API_URL || '/api';
+const API_URL = normalizeApiUrl(process.env.REACT_APP_API_URL);
+const DIRECT_BACKEND_BASE = API_URL === '/api' ? '' : API_URL.replace(/\/api$/i, '');
+const ENABLE_PROXY_FALLBACK = /^(1|true|yes|on)$/i.test(String(process.env.REACT_APP_API_FALLBACK_PROXY || 'true'));
 const VERSION = '1.1.5-PREMIUM';
+
+if (DIRECT_BACKEND_BASE) {
+  axios.defaults.baseURL = DIRECT_BACKEND_BASE;
+}
+
+if (DIRECT_BACKEND_BASE && ENABLE_PROXY_FALLBACK) {
+  axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const cfg = error?.config;
+      const isNetworkError = !error?.response;
+      const alreadyRetried = Boolean(cfg?.__hybridProxyRetried);
+      const requestUrl = String(cfg?.url || '');
+      const isApiPath = requestUrl.startsWith('/api');
+
+      if (!cfg || !isNetworkError || alreadyRetried || !isApiPath) {
+        return Promise.reject(error);
+      }
+
+      console.warn(`[API ${VERSION}] Axios direct backend failed, retrying proxy fallback`, {
+        requestUrl,
+        reason: error?.message || 'network-error'
+      });
+
+      return axios.request({
+        ...cfg,
+        baseURL: '',
+        __hybridProxyRetried: true
+      });
+    }
+  );
+}
+
+const toProxyApiUrl = (endpoint) => `/api${endpoint}`;
+
+const fetchWithHybridFallback = async (endpoint, config, label = 'request') => {
+  const primaryUrl = API_URL + endpoint;
+  try {
+    return await fetch(primaryUrl, config);
+  } catch (primaryError) {
+    if (API_URL !== '/api' && ENABLE_PROXY_FALLBACK) {
+      const fallbackUrl = toProxyApiUrl(endpoint);
+      console.warn(`[API ${VERSION}] Primary ${label} failed, retrying through proxy fallback`, {
+        endpoint,
+        primaryUrl,
+        fallbackUrl,
+        reason: primaryError?.message || 'network-error'
+      });
+      return fetch(fallbackUrl, config);
+    }
+    throw primaryError;
+  }
+};
 
 // ── Interceptor global de fetch ──────────────────────────────────────────────
 // Redirige cualquier petición a /api/... hacia la URL absoluta del VPS
@@ -16,13 +84,25 @@ const VERSION = '1.1.5-PREMIUM';
 // componentes que usan fetch('/api/...') nativo sin modificarlos individualmente.
 if (isTauri || process.env.REACT_APP_API_URL) {
   const _originalFetch = window.fetch.bind(window);
-  const VPS_BASE = (process.env.REACT_APP_API_URL || '/api')
-    .replace(/\/api$/, ''); // quitar /api al final para tener solo la base
-  window.fetch = (input, init) => {
+  const BACKEND_BASE = DIRECT_BACKEND_BASE;
+  window.fetch = async (input, init) => {
     let url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
     if (typeof url === 'string' && url.startsWith('/api')) {
-      url = VPS_BASE + url;
-      input = typeof input === 'string' ? url : new Request(url, input);
+      const directUrl = BACKEND_BASE ? BACKEND_BASE + url : url;
+      const directInput = typeof input === 'string' ? directUrl : new Request(directUrl, input instanceof Request ? input.clone() : input);
+      try {
+        return await _originalFetch(directInput, init);
+      } catch (primaryError) {
+        if (BACKEND_BASE && ENABLE_PROXY_FALLBACK) {
+          console.warn(`[API ${VERSION}] Native fetch failed on direct backend, retrying proxy`, {
+            url,
+            directUrl,
+            reason: primaryError?.message || 'network-error'
+          });
+          return _originalFetch(input, init);
+        }
+        throw primaryError;
+      }
     }
     return _originalFetch(input, init);
   };
@@ -65,7 +145,6 @@ class ApiService {
     }
 
     async request(endpoint, options = {}) {
-        const url = API_URL + endpoint;
         const headers = this.getHeaders();
         const config = { headers, ...options };
 
@@ -77,7 +156,7 @@ class ApiService {
 
         let response;
         try {
-            response = await fetch(url, config);
+            response = await fetchWithHybridFallback(endpoint, config, endpoint);
         } catch (fetchError) {
             console.error(`[API ${VERSION}] Network Error for ${endpoint}:`, fetchError);
             throw new Error('Error de conexión a la red');
@@ -156,11 +235,11 @@ class ApiService {
         };
 
         try {
-            const response = await fetch(API_URL + '/auth/login', {
+            const response = await fetchWithHybridFallback('/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
-            });
+            }, 'login');
 
             const data = await response.json();
 

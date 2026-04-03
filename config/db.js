@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const isMongoAuthError = (error) => {
+    const msg = String(error?.message || '').toLowerCase();
+    return (
+        msg.includes('requires authentication') ||
+        msg.includes('authentication failed') ||
+        msg.includes('not authorized') ||
+        msg.includes('auth failed') ||
+        msg.includes('scram')
+    );
+};
+
+const verifyAppReadPermissions = async () => {
+    const Configuracion = require('../models/Configuracion');
+    // Debe poder leer configuración pública; si falla por auth, la app no funcionará.
+    await Configuracion.findOne({ clave: 'empresa_nombre' }).lean();
+};
+
 const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
@@ -7,6 +24,20 @@ const connectDB = async () => {
         });
 
         console.log(`✅ MongoDB conectado: ${conn.connection.host}:${conn.connection.port}/${conn.connection.name}`);
+
+        // Verificación de permisos mínimos de la app para fallar rápido en producción
+        try {
+            await verifyAppReadPermissions();
+            console.log('✅ Verificación de permisos MongoDB OK (lectura de configuración)');
+        } catch (permError) {
+            if (isMongoAuthError(permError)) {
+                console.error('❌ MongoDB autenticó conexión pero no tiene permisos suficientes para consultas de la app.');
+                console.error('   Revisá MONGODB_URI (usuario/clave/db/authSource) y roles del usuario en la base de datos objetivo.');
+                throw permError;
+            }
+            // Otros errores (ej. colección vacía/no inicializada) no deben tumbar el arranque.
+            console.warn(`⚠️  Verificación de permisos MongoDB omitida: ${permError.message}`);
+        }
 
         // Asegurar que los índices unique de email y username sean sparse
         // (documentos sin email/username no deben causar duplicado null)
