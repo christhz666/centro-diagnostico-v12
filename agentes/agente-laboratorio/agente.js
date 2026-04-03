@@ -37,6 +37,93 @@ try {
 const SERVER_URL = config.servidor.url.replace(/\/$/, '');
 const LOG_FILE = path.join(APP_DIR, config.logArchivo || 'agente.log');
 
+const CTRL = Object.freeze({
+    ENQ: '\x05',
+    ACK: '\x06',
+    NAK: '\x15',
+    EOT: '\x04',
+    STX: '\x02',
+    ETX: '\x03',
+    ETB: '\x17',
+    VT: '\x0B',
+    FS: '\x1C',
+    CR: '\x0D'
+});
+
+function hl7Timestamp(date = new Date()) {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function inferirTriggerACK(messageType = '') {
+    const [, trigger = ''] = String(messageType).split('^');
+    if (!trigger) return 'R01';
+    // Mindray suele usar QRY^Q02 y espera ACK^Q03
+    if (trigger === 'Q02') return 'Q03';
+    return trigger;
+}
+
+function construirAckHL7(mensajeOriginal = '') {
+    const segmentos = String(mensajeOriginal).split('\r').filter(Boolean);
+    const mshSeg = segmentos.find(s => s.startsWith('MSH|')) || '';
+    const msh = mshSeg.split('|');
+
+    const sendingApp = msh[2] || '';
+    const sendingFacility = msh[3] || '';
+    const receivingApp = msh[4] || 'LIS';
+    const receivingFacility = msh[5] || 'CENTRO_DIAG';
+    const messageType = msh[8] || 'ORU^R01';
+    const messageControlId = msh[9] || `${Date.now()}`;
+    const version = msh[11] || '2.3.1';
+
+    const ackTrigger = inferirTriggerACK(messageType);
+    const ackType = `ACK^${ackTrigger}`;
+    const ts = hl7Timestamp();
+
+    return [
+        `MSH|^~\\&|${receivingApp}|${receivingFacility}|${sendingApp}|${sendingFacility}|${ts}||${ackType}|${messageControlId}|P|${version}`,
+        `MSA|AA|${messageControlId}|Message accepted`,
+        ''
+    ].join('\r');
+}
+
+function enviarAckHL7(socket, mensajeOriginal, nombreEquipo) {
+    try {
+        const ack = construirAckHL7(mensajeOriginal);
+        socket.write(`${CTRL.VT}${ack}${CTRL.FS}${CTRL.CR}`);
+        log('INFO', `↩️ ACK HL7 enviado a ${nombreEquipo}`);
+    } catch (err) {
+        log('ERROR', `❌ No se pudo enviar ACK HL7 a ${nombreEquipo}: ${err.message}`);
+    }
+}
+
+function enviarAckASTM(writer, nombreEquipo, motivo = 'mensaje') {
+    try {
+        writer.write(Buffer.from([0x06])); // ACK
+        log('INFO', `↩️ ACK ASTM enviado a ${nombreEquipo} (${motivo})`);
+    } catch (err) {
+        log('ERROR', `❌ No se pudo enviar ACK ASTM a ${nombreEquipo}: ${err.message}`);
+    }
+}
+
+function responderControlASTM(writer, payload, nombreEquipo) {
+    const chunk = Buffer.isBuffer(payload)
+        ? payload.toString('binary')
+        : String(payload || '');
+
+    if (!chunk) return;
+
+    const recibioENQ = chunk.includes(CTRL.ENQ);
+    const recibioFrame = chunk.includes(CTRL.ETX) || chunk.includes(CTRL.ETB);
+
+    if (recibioENQ) {
+        enviarAckASTM(writer, nombreEquipo, 'ENQ');
+    }
+    if (recibioFrame) {
+        enviarAckASTM(writer, nombreEquipo, 'FRAME');
+    }
+}
+
 // ── Logging ──────────────────────────────────────────────────
 function log(nivel, mensaje) {
     const ts = new Date().toLocaleString('es-DO');
@@ -246,11 +333,38 @@ function conectarTCP(equipo) {
         log('OK', `📡 Conexión TCP recibida de ${socket.remoteAddress} para ${nombre}`);
 
         socket.on('data', (data) => {
-            buffer += data.toString();
+            const chunk = Buffer.isBuffer(data) ? data.toString('binary') : String(data || '');
+            buffer += chunk;
+
+            // ASTM: responder handshake básico (ENQ/ETX/ETB -> ACK)
+            responderControlASTM(socket, chunk, nombre);
+
+            // HL7 sobre MLLP: <VT>...<FS><CR>
+            const hl7Start = CTRL.VT;
+            const hl7End = `${CTRL.FS}${CTRL.CR}`;
+            let start = buffer.indexOf(hl7Start);
+            let end = buffer.indexOf(hl7End);
+
+            while (start !== -1 && end !== -1 && end > start) {
+                const mensaje = buffer.substring(start + 1, end);
+                const { identificador, resultados } = parsearHL7(mensaje);
+                if (resultados.length > 0 && identificador) {
+                    log('INFO', `📋 ${resultados.length} resultados HL7 de ${nombre} para ID: ${identificador}`);
+                    enviarAlServidor(equipo, identificador, resultados).catch(() => { });
+                }
+
+                // Respuesta LIS requerida por varios equipos HL7
+                enviarAckHL7(socket, mensaje, nombre);
+
+                buffer = buffer.substring(end + hl7End.length);
+                start = buffer.indexOf(hl7Start);
+                end = buffer.indexOf(hl7End);
+            }
 
             // Detectar fin de mensaje ASTM (L| record o ETX)
-            if (buffer.includes('L|') || buffer.includes('\x03')) {
-                const { identificador, resultados } = parsearASTM(buffer);
+            if (buffer.includes('L|') || buffer.includes(CTRL.ETX) || buffer.includes(CTRL.EOT)) {
+                const normalizado = buffer.replace(/\r/g, '\n');
+                const { identificador, resultados } = parsearASTM(normalizado);
                 if (resultados.length > 0 && identificador) {
                     log('INFO', `📋 ${resultados.length} resultados de ${nombre} para ID: ${identificador}`);
                     enviarAlServidor(equipo, identificador, resultados).catch(() => { });
@@ -258,17 +372,10 @@ function conectarTCP(equipo) {
                 buffer = '';
             }
 
-            // Detectar mensaje HL7
-            if (buffer.includes('\x0B') && buffer.includes('\x1C\x0D')) {
-                const start = buffer.indexOf('\x0B') + 1;
-                const end = buffer.indexOf('\x1C\x0D');
-                const mensaje = buffer.substring(start, end);
-                const { identificador, resultados } = parsearHL7(mensaje);
-                if (resultados.length > 0 && identificador) {
-                    log('INFO', `📋 ${resultados.length} resultados HL7 de ${nombre} para ID: ${identificador}`);
-                    enviarAlServidor(equipo, identificador, resultados).catch(() => { });
-                }
-                buffer = buffer.substring(end + 2);
+            // Evitar crecimiento infinito de buffer en conexiones ruidosas
+            if (buffer.length > 32768) {
+                log('WARN', `⚠️ Buffer TCP grande en ${nombre}. Recortando para estabilidad.`);
+                buffer = buffer.slice(-8192);
             }
         });
 
@@ -302,7 +409,6 @@ function conectarSerial(equipo) {
             serialModule = require('serialport');
         }
         const { SerialPort } = serialModule;
-        const { ReadlineParser } = require('@serialport/parser-readline');
 
         const port = new SerialPort({
             path: comPort,
@@ -312,18 +418,52 @@ function conectarSerial(equipo) {
             parity: 'none'
         });
 
-        const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
         let buffer = '';
 
-        parser.on('data', (linea) => {
-            buffer += linea + '\n';
-            if (linea.startsWith('L|') || linea.includes('\x03')) {
-                const { identificador, resultados } = parsearASTM(buffer);
+        port.on('data', (chunkBuffer) => {
+            const chunk = Buffer.isBuffer(chunkBuffer)
+                ? chunkBuffer.toString('binary')
+                : String(chunkBuffer || '');
+
+            buffer += chunk;
+
+            // ASTM: responder handshake básico (ENQ/ETX/ETB -> ACK)
+            responderControlASTM(port, chunk, nombre);
+
+            // HL7 sobre serial con framing MLLP
+            const hl7Start = CTRL.VT;
+            const hl7End = `${CTRL.FS}${CTRL.CR}`;
+            let start = buffer.indexOf(hl7Start);
+            let end = buffer.indexOf(hl7End);
+
+            while (start !== -1 && end !== -1 && end > start) {
+                const mensaje = buffer.substring(start + 1, end);
+                const { identificador, resultados } = parsearHL7(mensaje);
+                if (resultados.length > 0 && identificador) {
+                    log('INFO', `📋 ${resultados.length} resultados HL7 Serial de ${nombre} para ID: ${identificador}`);
+                    enviarAlServidor(equipo, identificador, resultados).catch(() => { });
+                }
+
+                enviarAckASTM(port, nombre, 'HL7_MLLP');
+                buffer = buffer.substring(end + hl7End.length);
+                start = buffer.indexOf(hl7Start);
+                end = buffer.indexOf(hl7End);
+            }
+
+            // ASTM por serial (fin por L|, ETX o EOT)
+            if (buffer.includes('L|') || buffer.includes(CTRL.ETX) || buffer.includes(CTRL.EOT)) {
+                const normalizado = buffer.replace(/\r/g, '\n');
+                const { identificador, resultados } = parsearASTM(normalizado);
                 if (resultados.length > 0 && identificador) {
                     log('INFO', `📋 ${resultados.length} resultados Serial de ${nombre} para ID: ${identificador}`);
                     enviarAlServidor(equipo, identificador, resultados).catch(() => { });
                 }
                 buffer = '';
+            }
+
+            if (buffer.length > 32768) {
+                log('WARN', `⚠️ Buffer serial grande en ${nombre}. Recortando para estabilidad.`);
+                buffer = buffer.slice(-8192);
             }
         });
 

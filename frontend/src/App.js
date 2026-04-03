@@ -14,7 +14,6 @@ import AppSidebar from './components/ui/sidebar';
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const RegistroInteligente = lazy(() => import('./components/RegistroInteligente'));
 const Facturas = lazy(() => import('./components/Facturas'));
-const Cotizaciones = lazy(() => import('./components/Cotizaciones'));
 const CrearFacturaCompleta = lazy(() => import('./components/CrearFacturaCompleta'));
 const PortalMedico = lazy(() => import('./components/PortalMedico'));
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
@@ -382,7 +381,14 @@ function App() {
                         <Route path="/registro" element={canAccess('registro', ['admin', 'super-admin', 'recepcion', 'recepcionista']) ? <RegistroInteligente /> : <Navigate to="/" />} />
                         <Route path="/consulta" element={canAccess('consulta', ['admin', 'super-admin', 'recepcion', 'recepcionista', 'laboratorio', 'bioanalista']) ? <ConsultaRapida /> : <Navigate to="/" />} />
                         <Route path="/facturas" element={canAccess('facturas', ['admin', 'super-admin', 'recepcion', 'recepcionista']) ? <Facturas /> : <Navigate to="/" />} />
-                        <Route path="/cotizaciones" element={canAccess('facturas', ['admin', 'super-admin', 'recepcion', 'recepcionista']) ? <Cotizaciones /> : <Navigate to="/" />} />
+                        <Route
+                          path="/cotizaciones"
+                          element={
+                            canAccess('facturas', ['admin', 'super-admin', 'recepcion', 'recepcionista'])
+                              ? <RegistroInteligente initialMode="cotizacion" />
+                              : <Navigate to="/" />
+                          }
+                        />
                         <Route path="/crear-factura/:ordenId" element={canAccess('facturas', ['admin', 'super-admin', 'recepcion', 'recepcionista']) ? <CrearFacturaCompleta /> : <Navigate to="/" />} />
                         <Route path="/medico" element={canAccess('medico', ['admin', 'super-admin', 'medico']) ? <PortalMedico /> : <Navigate to="/" />} />
                         <Route path="/perfil" element={canAccess('perfil', ['admin', 'super-admin', 'medico', 'recepcion', 'recepcionista', 'laboratorio', 'bioanalista']) ? <Perfil user={user} onUserUpdate={handleUserUpdate} /> : <Navigate to="/" />} />

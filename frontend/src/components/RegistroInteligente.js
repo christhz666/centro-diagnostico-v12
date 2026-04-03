@@ -4,9 +4,15 @@ import api from '../services/api';
 import FacturaTermica from './FacturaTermica';
 import useDebounce from '../hooks/useDebounce';
 
-const RegistroInteligente = () => {
+const normalizarModoInicial = (modo = 'nuevo') => {
+  const m = String(modo || '').toLowerCase().trim();
+  return m === 'cotizacion' ? 'cotizacion' : 'nuevo';
+};
+
+const RegistroInteligente = ({ initialMode = 'nuevo' }) => {
+  const modoInicial = normalizarModoInicial(initialMode);
   const [paso, setPaso] = useState(1);
-  const [modoPaciente, setModoPaciente] = useState('nuevo');
+  const [modoPaciente, setModoPaciente] = useState(modoInicial);
   const [vieneDeCotizacion, setVieneDeCotizacion] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [pacientes, setPacientes] = useState([]);
@@ -31,6 +37,27 @@ const RegistroInteligente = () => {
   });
 
   useEffect(() => { fetchEstudios(); fetchMedicos(); }, []);
+
+  useEffect(() => {
+    const nuevoModo = normalizarModoInicial(initialMode);
+    setPaso(1);
+    setModoPaciente(nuevoModo);
+    setVieneDeCotizacion(false);
+    setBusqueda('');
+    setPacientes([]);
+    setPacienteSeleccionado(null);
+    setEstudiosSeleccionados([]);
+    setFacturaGenerada(null);
+    setMostrarFactura(false);
+    setDescuento(0);
+    setMontoPagado(0);
+    setMedicoSeleccionado('');
+    setNuevoPaciente({
+      nombre: '', apellido: '', cedula: '', esMenor: false,
+      telefono: '', email: '', fechaNacimiento: '', sexo: 'M',
+      nacionalidad: 'Dominicano', tipoSangre: '', seguroNombre: '', seguroNumeroAfiliado: ''
+    });
+  }, [initialMode]);
 
   const fetchMedicos = async () => {
     try {
@@ -60,7 +87,8 @@ const RegistroInteligente = () => {
   }, []);
 
   useEffect(() => {
-    if (modoPaciente !== 'existente') return;
+    const modoBusquedaPaciente = modoPaciente === 'existente' || modoPaciente === 'cotizacion-existente';
+    if (!modoBusquedaPaciente) return;
     buscarPaciente(debouncedBusqueda);
   }, [debouncedBusqueda, buscarPaciente, modoPaciente]);
 
@@ -227,9 +255,10 @@ const RegistroInteligente = () => {
   };
 
   const reiniciar = () => {
-    setModoPaciente('nuevo');
+    setModoPaciente(modoInicial);
     setPaso(1); setBusqueda(''); setPacientes([]); setPacienteSeleccionado(null); setEstudiosSeleccionados([]);
     setFacturaGenerada(null); setMostrarFactura(false); setDescuento(0); setMontoPagado(0); setMedicoSeleccionado('');
+    setVieneDeCotizacion(false);
     setNuevoPaciente({ nombre: '', apellido: '', cedula: '', esMenor: false, telefono: '', email: '', fechaNacimiento: '', sexo: 'M', nacionalidad: 'Dominicano', tipoSangre: '', seguroNombre: '', seguroNumeroAfiliado: '' });
   };
 

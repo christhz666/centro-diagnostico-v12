@@ -1,6 +1,6 @@
 {
     "servidor": {
-        "url": "https://TU-DOMINIO-O-IP-VPS.com",
+        "url": "http://127.0.0.1:5000",
         "apiKey": ""
     },
     "equipos": [
@@ -16,8 +16,8 @@
             "nombre": "Mindray BS-200",
             "tipo": "quimica",
             "protocolo": "TCP",
-            "ip": "192.168.1.120",
-            "puerto": 5000,
+            "ip": "IPV4_DE_ESTA_PC",
+            "puerto": 33891,
             "bindIp": "0.0.0.0",
             "activo": true
         }

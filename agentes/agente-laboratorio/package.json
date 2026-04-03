@@ -8,7 +8,10 @@
         "test": "node agente.js --test"
     },
     "dependencies": {
-        "serialport": "^12.0.0",
-        "node-fetch": "^2.7.0"
+        "node-fetch": "^2.7.0",
+        "serialport": "^12.0.0"
+    },
+    "devDependencies": {
+        "pkg": "^5.8.1"
     }
 }

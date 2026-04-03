@@ -84,7 +84,8 @@ router.get('/agente-laboratorio', (req, res) => {
     }
 
     // Fallback: generar el instalador BAT 1-Click si no existe el .exe
-    const batContent = generateOneClickInstaller('laboratorio');
+    const baseUrl = resolvePublicBaseUrl(req);
+    const batContent = generateOneClickInstaller('laboratorio', baseUrl);
     res.setHeader('Content-Type', 'application/x-bat');
     res.setHeader('Content-Disposition', 'attachment; filename="Instalar_Agente_Laboratorio_1Click.bat"');
     res.send(batContent);
@@ -98,13 +99,39 @@ router.get('/agente-laboratorio-zip', (req, res) => {
 });
 
 // Helper: Generador de BAT Instalador
-function generateOneClickInstaller(tipo) {
+function resolvePublicBaseUrl(req) {
+    const fromPublicApi = String(process.env.PUBLIC_API_URL || '').trim();
+    if (fromPublicApi) {
+        return fromPublicApi.replace(/\/+$/, '').replace(/\/api$/, '');
+    }
+
+    const fromAppUrl = String(process.env.APP_URL || '').trim();
+    if (fromAppUrl) {
+        return fromAppUrl.replace(/\/+$/, '');
+    }
+
+    const xfProtoRaw = req.headers['x-forwarded-proto'];
+    const xfHostRaw = req.headers['x-forwarded-host'];
+
+    const xfProto = Array.isArray(xfProtoRaw)
+        ? xfProtoRaw[0]
+        : String(xfProtoRaw || '').split(',')[0].trim();
+
+    const xfHost = Array.isArray(xfHostRaw)
+        ? xfHostRaw[0]
+        : String(xfHostRaw || '').split(',')[0].trim();
+
+    const protocol = xfProto || req.protocol || 'http';
+    const host = xfHost || req.get('host') || 'localhost:5000';
+
+    return `${protocol}://${host}`;
+}
+
+function generateOneClickInstaller(tipo, baseUrl) {
     const isLab = tipo === 'laboratorio';
     const folderName = isLab ? 'LabAgente' : 'RxAgente';
-    const urlZip = `https://${process.env.VITE_API_URL || 'centro.test'}/api/downloads/agente-${tipo}-zip`; // El BAT requiere URL completa, pero para simplificar usaremos local
-
-    // Usamos localhost en caso de test, de lo contrario la IP real en produccion
-    const downloadUrl = `http://localhost:5000/api/downloads/agente-${tipo}-zip`;
+    const base = String(baseUrl || '').replace(/\/+$/, '');
+    const downloadUrl = `${base}/api/downloads/agente-${tipo}-zip`;
 
     return `@echo off
 chcp 65001 >nul

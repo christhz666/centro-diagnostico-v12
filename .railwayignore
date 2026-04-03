@@ -1,0 +1,16 @@
+frontend/src-tauri/bin/
+frontend/src-tauri/target/
+frontend/node_modules/
+frontend/build/
+agentes/agente-lab-app/src-tauri/sidecar/
+agentes/agente-lab-app/src-tauri/target/
+agentes/**/dist/
+agentes/**/node_modules/
+node_modules/
+uploads/
+logs/
+*.log
+.git/
+.vscode/
+.idea/
+*.zip

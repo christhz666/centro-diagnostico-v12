@@ -83,11 +83,13 @@ services:
       - ../scripts/backup.sh:/backup.sh:ro
     environment:
       - MONGO_HOST=mongo
+      - MONGODB_URI=mongodb://mongo:27017/centro_${CENTRO_ID:-default}
+      - BACKUP_DIR=/backups
       - BACKUP_RETENTION_DAYS=30
     entrypoint: ["/bin/bash", "-c"]
     command: |
       'while true; do
-        /backup.sh
+        bash /backup.sh
         sleep 86400
       done'
     depends_on:

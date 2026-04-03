@@ -23,6 +23,45 @@ Plantilla base para desplegar nuevas instancias SaaS del sistema de centro diagn
 - `npm run env:prepare:prod` — generar/normalizar secretos críticos en `.env`
 - `npm run template:saas:clean` — limpiar artefactos locales antes de publicar plantilla
 
+## Ejecución local (sin Docker)
+
+1. Configurar `.env` con valores reales (mínimo `MONGODB_URI`, `JWT_SECRET`, `OFFLINE_SYNC_KEY`).
+2. Instalar dependencias:
+
+```bash
+npm install
+npm --prefix frontend install
+```
+
+3. Iniciar backend:
+
+```bash
+npm start
+```
+
+4. (Opcional) Iniciar frontend en desarrollo:
+
+```bash
+npm --prefix frontend start
+```
+
+## Ejecución con Docker
+
+Desde la carpeta `docker/`:
+
+```bash
+docker compose up -d --build
+```
+
+Servicios por defecto:
+- Frontend: `http://localhost:3000`
+- Backend/API: `http://localhost:5000`
+- MongoDB: `localhost:27017`
+
+Notas:
+- El proyecto mantiene compatibilidad dual: funciona con y sin Docker.
+- Para enlaces públicos (ej. instalador de agentes), definir `PUBLIC_API_URL` en entorno de backend.
+
 ## Provisioning en un comando (nueva instancia)
 
 ```bash
