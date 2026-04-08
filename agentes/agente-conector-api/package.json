@@ -1,9 +1,0 @@
-{
-  "name": "agente-conector-api",
-  "version": "1.0.0",
-  "description": "Agente con API key para pull de órdenes persistentes",
-  "main": "agente-conector.js",
-  "scripts": {
-    "start": "node agente-conector.js"
-  }
-}

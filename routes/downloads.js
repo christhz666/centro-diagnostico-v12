@@ -5,6 +5,7 @@ const fs = require('fs');
 
 // Directorio donde se almacenan los instaladores
 const DOWNLOADS_DIR = path.join(__dirname, '../downloads');
+const AGENTE_LAB_DIR = path.join(__dirname, '../agentes/agente-laboratorio');
 
 // Mapeo de plataformas a extensiones de archivo
 const PLATFORM_EXTENSIONS = {
@@ -71,31 +72,51 @@ router.get('/info', (req, res) => {
 // @route   GET /api/downloads/agente-laboratorio
 router.get('/agente-laboratorio', (req, res) => {
     // Intentar servir el instalador .exe compilado de Tauri primero
-    const exeDir = path.join(__dirname, '../downloads');
-    const possibleExe = fs.existsSync(exeDir)
-        ? (fs.readdirSync(exeDir).find(f => f.toLowerCase().includes('agente') && f.endsWith('.exe')))
+    const possibleExe = fs.existsSync(DOWNLOADS_DIR)
+        ? (fs.readdirSync(DOWNLOADS_DIR).find(f => f.toLowerCase().includes('agente') && f.endsWith('.exe')))
         : null;
 
     if (possibleExe) {
-        const exePath = path.join(exeDir, possibleExe);
+        const exePath = path.join(DOWNLOADS_DIR, possibleExe);
         res.setHeader('Content-Type', 'application/x-msdownload');
         res.setHeader('Content-Disposition', `attachment; filename="${possibleExe}"`);
         return fs.createReadStream(exePath).pipe(res);
     }
 
-    // Fallback: generar el instalador BAT 1-Click si no existe el .exe
-    const baseUrl = resolvePublicBaseUrl(req);
-    const batContent = generateOneClickInstaller('laboratorio', baseUrl);
-    res.setHeader('Content-Type', 'application/x-bat');
-    res.setHeader('Content-Disposition', 'attachment; filename="Instalar_Agente_Laboratorio_1Click.bat"');
-    res.send(batContent);
+    // Fallback 1: generar instalador BAT 1-Click si existe carpeta del agente
+    if (fs.existsSync(AGENTE_LAB_DIR)) {
+        const baseUrl = resolvePublicBaseUrl(req);
+        const batContent = generateOneClickInstaller('laboratorio', baseUrl);
+        res.setHeader('Content-Type', 'application/x-bat');
+        res.setHeader('Content-Disposition', 'attachment; filename="Instalar_Agente_Laboratorio_1Click.bat"');
+        return res.send(batContent);
+    }
+
+    // Fallback 2: redirección configurable a instalador externo (por ejemplo, release de GitHub)
+    const externalInstallerUrl = String(process.env.AGENTE_LAB_DOWNLOAD_URL || '').trim();
+    if (externalInstallerUrl) {
+        return res.redirect(302, externalInstallerUrl);
+    }
+
+    // Sin instalador local ni remoto configurado: responder controlado para no entregar BAT roto
+    return res.status(404).json({
+        success: false,
+        error: 'Agente de laboratorio no disponible en este despliegue',
+        hint: 'Define AGENTE_LAB_DOWNLOAD_URL para redirigir a un instalador externo.'
+    });
 });
 
 // @desc    Descargar agente de laboratorio en ZIP (USADO INTERNAMENTE POR EL BAT)
 // @route   GET /api/downloads/agente-laboratorio-zip
 router.get('/agente-laboratorio-zip', (req, res) => {
-    const agentDir = path.join(__dirname, '../agentes/agente-laboratorio');
-    servirCarpetaComoZip(res, agentDir, 'agente-laboratorio.zip');
+    if (!fs.existsSync(AGENTE_LAB_DIR)) {
+        return res.status(404).json({
+            success: false,
+            error: 'Paquete ZIP del agente no disponible en este despliegue'
+        });
+    }
+
+    servirCarpetaComoZip(res, AGENTE_LAB_DIR, 'agente-laboratorio.zip');
 });
 
 // Helper: Generador de BAT Instalador

@@ -1,7 +1,0 @@
-# Ignorar logs generados (solo mantener .gitkeep)
-*.log
-*.raw
-!.gitkeep
-
-# Node modules
-node_modules/
