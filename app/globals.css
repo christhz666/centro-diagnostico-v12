@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+:root {
+  --background: 223 29% 91%;
+  --foreground: 215 25% 27%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 27%;
+  --primary: 189 94% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 215 25% 27%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 174 91% 60%;
+  --accent-foreground: 215 25% 10%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 189 94% 43%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 220 26% 6%;
+  --foreground: 240 5% 97%;
+  --card: 220 20% 10%;
+  --card-foreground: 240 5% 97%;
+  --primary: 174 91% 60%;
+  --primary-foreground: 220 26% 6%;
+  --secondary: 220 20% 14%;
+  --secondary-foreground: 240 5% 97%;
+  --muted: 220 20% 14%;
+  --muted-foreground: 215 16% 65%;
+  --accent: 174 91% 60%;
+  --accent-foreground: 220 26% 6%;
+  --border: 220 20% 18%;
+  --input: 220 20% 18%;
+  --ring: 174 91% 60%;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Utility classes */
+.glass {
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+}
