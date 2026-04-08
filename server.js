@@ -26,27 +26,135 @@ const app = express();
 app.use(compression()); // Comprimir respuestas
 app.set('trust proxy', 1);
 
-// Ruta raíz para evitar 404 en /
+// Ruta raíz - Página de bienvenida HTML
 app.get('/', (req, res) => {
     const dbConnected = mongoose.connection.readyState === 1;
-    res.json({
-        success: true,
-        message: 'Centro Diagnóstico MI ESPERANZA - API REST',
-        version: '1.0.0',
-        date: new Date().toISOString(),
-        database: {
-            connected: dbConnected,
-            status: dbConnected ? 'Conectada' : 'No conectada'
-        },
-        documentation: {
-            swagger: '/api/docs',
-            health: '/api/health'
-        },
-        info: !dbConnected ? {
-            message: 'Para usar todas las funciones, configura MongoDB en las variables de entorno.',
-            help: 'Puedes usar MongoDB Atlas (gratuito) o configurar una instancia local.'
-        } : undefined
-    });
+    const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro Diagnóstico MI ESPERANZA - API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 32px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .content { padding: 32px; }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .status.connected { background: #d1fae5; color: #065f46; }
+        .status.disconnected { background: #fef3c7; color: #92400e; }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .status.connected .status-dot { background: #10b981; }
+        .status.disconnected .status-dot { background: #f59e0b; }
+        .links { display: flex; flex-direction: column; gap: 12px; }
+        .link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.2s;
+        }
+        .link:hover { background: #e2e8f0; transform: translateX(4px); }
+        .link-title { font-weight: 600; }
+        .link-desc { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .arrow { color: #94a3b8; font-size: 20px; }
+        .footer {
+            padding: 16px 32px;
+            background: #f8fafc;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .version { 
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Centro Diagnostico MI ESPERANZA</h1>
+            <p>Sistema de Gestion de Laboratorio Clinico</p>
+        </div>
+        <div class="content">
+            <div class="status ${dbConnected ? 'connected' : 'disconnected'}">
+                <div class="status-dot"></div>
+                <div>
+                    <strong>Base de datos: ${dbConnected ? 'Conectada' : 'No conectada'}</strong>
+                    <p style="font-size: 13px; margin-top: 4px;">
+                        ${dbConnected ? 'MongoDB funcionando correctamente' : 'Configura MONGODB_URI para habilitar todas las funciones'}
+                    </p>
+                </div>
+            </div>
+            <div class="links">
+                <a href="/api/docs" class="link">
+                    <div>
+                        <div class="link-title">Documentacion API (Swagger)</div>
+                        <div class="link-desc">Explora todos los endpoints disponibles</div>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>
+                <a href="/api/health" class="link">
+                    <div>
+                        <div class="link-title">Estado del Servidor</div>
+                        <div class="link-desc">Verifica el estado de salud de la API</div>
+                    </div>
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+        <div class="footer">
+            API REST v1.0.0 | ${new Date().toLocaleDateString('es-ES')}
+            <div class="version">Servidor activo en puerto ${process.env.PORT || 5000}</div>
+        </div>
+    </div>
+</body>
+</html>`;
+    res.type('html').send(html);
 });
 
 const getLocalIps = () => {
