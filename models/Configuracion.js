@@ -20,6 +20,4 @@ const configuracionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-configuracionSchema.index({ clave: 1 });
-
 module.exports = mongoose.model('Configuracion', configuracionSchema);
