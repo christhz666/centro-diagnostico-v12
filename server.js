@@ -28,11 +28,24 @@ app.set('trust proxy', 1);
 
 // Ruta raíz para evitar 404 en /
 app.get('/', (req, res) => {
+    const dbConnected = mongoose.connection.readyState === 1;
     res.json({
         success: true,
-        message: 'Centro Diagnóstico API',
-        version: '1.0',
-        date: new Date().toISOString()
+        message: 'Centro Diagnóstico MI ESPERANZA - API REST',
+        version: '1.0.0',
+        date: new Date().toISOString(),
+        database: {
+            connected: dbConnected,
+            status: dbConnected ? 'Conectada' : 'No conectada'
+        },
+        documentation: {
+            swagger: '/api/docs',
+            health: '/api/health'
+        },
+        info: !dbConnected ? {
+            message: 'Para usar todas las funciones, configura MongoDB en las variables de entorno.',
+            help: 'Puedes usar MongoDB Atlas (gratuito) o configurar una instancia local.'
+        } : undefined
     });
 });
 
@@ -275,13 +288,24 @@ const autoStartEquipos = /^(1|true|yes|on)$/i.test(String(process.env.EQUIPOS_AU
 
 const startServer = async () => {
     try {
-        const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
+        const requiredEnv = ['JWT_SECRET'];
         const missing = requiredEnv.filter((key) => !process.env[key]);
         if (missing.length > 0) {
             throw new Error(`Faltan variables de entorno requeridas: ${missing.join(', ')}`);
         }
 
-        await connectDB();
+        // Intentar conectar a MongoDB, pero no fallar si no está disponible en desarrollo
+        if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017/centro_diagnostico') {
+            try {
+                await connectDB();
+            } catch (dbError) {
+                console.error('⚠️ No se pudo conectar a MongoDB:', dbError.message);
+                console.log('ℹ️ El servidor continuará pero las funciones de base de datos no estarán disponibles.');
+            }
+        } else {
+            console.log('ℹ️ MongoDB no configurado. Ejecutando en modo demo/documentación.');
+            console.log('ℹ️ Para usar todas las funciones, configura MONGODB_URI con MongoDB Atlas o una instancia local.');
+        }
 
         const server = app.listen(PORT, HOST, () => {
             const ips = getLocalIps();
