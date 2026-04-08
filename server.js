@@ -149,7 +149,7 @@ app.get('/', (req, res) => {
         </div>
         <div class="footer">
             API REST v1.0.0 | ${new Date().toLocaleDateString('es-ES')}
-            <div class="version">Servidor activo en puerto ${process.env.PORT || 5000}</div>
+            <div class="version">Servidor activo en puerto ${process.env.PORT || 3000}</div>
         </div>
     </div>
 </body>
@@ -390,7 +390,7 @@ app.use(errorHandler);
 // INICIAR SERVIDOR
 // ==========================================
 
-const PORT = Number(process.env.PORT || 5000);
+const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
 const autoStartEquipos = /^(1|true|yes|on)$/i.test(String(process.env.EQUIPOS_AUTO_START || 'false'));
 
