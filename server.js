@@ -380,6 +380,11 @@ if (fs.existsSync(frontendBuild)) {
 }
 
 // ==========================================
+// FAVICON - Evitar errores 404 del navegador
+// ==========================================
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+// ==========================================
 // MANEJO DE ERRORES
 // ==========================================
 
